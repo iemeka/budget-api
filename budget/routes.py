@@ -6,25 +6,20 @@ def budget_routes(app):
     @app.route('/budget', methods=['POST'])
     def add_budget():
         title = request.json['budget_title']
-        total = request.json['budget_total']
 
-        @insert_budget_query(title,total)
+        @insert_budget_query(title)
         def add_budget_to_db():
-            query = ("""
-            INSERT INTO budget(budget_title,budget_total)
-            VALUES(%s,%s) RETURNING budget_id;
-            """)
+            query = "INSERT INTO budget (budget_title) VALUES(%s) RETURNING budget_id"
             return query
-        getId = add_budget_to_db()
+        get_Id = add_budget_to_db()
 
-        def serialize(title,total):
+        def serialize(title,budget_id):
             return jsonify({
-                'budget_title': title,
-                'budget_total':total,
-                'budget_id':getId
+                'title':title,
+                'budget_id':budget_id
             })
 
-        return serialize(title,total)
+        return serialize(title, get_Id)
 
     #get all budgets
     @app.route('/budget', methods=['GET'])

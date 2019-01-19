@@ -1,4 +1,6 @@
-from db_engine import *
+import psycopg2
+import functools
+from db_helper.config import *
 
 
 #create table decorator
@@ -27,12 +29,11 @@ def create_tables(query):
 
 #table query
 @create_tables
-def create_db():
+def create_tables():
     query = ["""
         CREATE TABLE budget(
             budget_id SERIAL PRIMARY KEY NOT NULL,
-            budget_title VARCHAR(100) NOT NULL,
-            budget_total INTEGER NOT NULL
+            budget_title VARCHAR(100) NOT NULL
         )
     ""","""
         CREATE TABLE expenses(
@@ -45,4 +46,8 @@ def create_db():
     """]
     return query
 
-create_db()
+
+
+
+if __name__ == '__main__':
+    create_tables()

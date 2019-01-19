@@ -4,16 +4,17 @@ import functools
 
 
 #insert into budget database decorator functions
-def insert_budget_query(title,total):
+def insert_budget_query(title):
     def insert_query_decorator(query):
         @functools.wraps(query)
         def connect_run_close():
             conn = None
+            budget_id = None
             try:
                 params = config()
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
-                cur.execute(query(), (title,total,))
+                cur.execute(query(), [title])
                 budget_id = cur.fetchone()[0]
                 conn.commit()
                 print "%s.. \n%s" % (cur.query, cur.statusmessage)
@@ -46,7 +47,6 @@ def query_data_without_arg(query):
                 db={}
                 db["budget_id"]= rows[0]
                 db["budget_title"] = rows[1]
-                db["budget_total"] = rows[2]
                 budget_list.append(db)        
             
            
