@@ -1,0 +1,104 @@
+from flask import Flask, request, jsonify
+from db_engine import *
+
+
+app = Flask(__name__)
+ 
+#create a budget
+@app.route('/budget', methods=['POST'])
+def add_budget():
+    title = request.json['budget_title']
+    total = request.json['budget_total']
+
+    @insert_budget_query(title,total)
+    def add_budget_to_db():
+        query = ("""
+        INSERT INTO budget(budget_title,budget_total)
+        VALUES(%s,%s) RETURNING budget_id;
+        """)
+        return query
+    getId = add_budget_to_db()
+
+    def serialize(title,total):
+        return jsonify({
+            'budget_title': title,
+            'budget_total':total,
+            'budget_id':getId
+        })
+
+    return serialize(title,total)
+
+#get all budgets
+@app.route('/budget', methods=['GET'])
+def get_budgets():
+    
+    @query_data_without_arg
+    def allBudgets():
+        query = """
+        SELECT * FROM budget;
+        """
+        return query
+    return jsonify(allBudgets())
+
+#get single budget
+@app.route('/budget/<id>', methods=['GET'])
+def get_budget(id):
+    
+    @query_data_without_arg
+    def oneBudget():
+        query = """
+        SELECT * FROM budget WHERE budget_id = %s;
+        """ % id
+        return query
+    return jsonify(oneBudget())
+
+#update a budget
+@app.route('/budget/<id>', methods=['PUT'])
+def update_budget(id):
+    title = request.json['budget_title']
+
+    @update_query(title,id)
+    def write_update():
+        query = """
+        UPDATE budget SET budget_title = %s
+        WHERE budget_id = %s
+        """
+        return query
+    write_update()
+
+    @query_data_without_arg
+    def oneBudget():
+        query = """
+        SELECT * FROM budget WHERE budget_id = %s;
+        """ % id
+        return query
+    return jsonify(oneBudget())
+
+#DELETE single budget
+@app.route('/budget/<id>', methods=['DELETE'])
+def delete_budget(id):
+    
+    @query_data_without_arg
+    def check_deleted():
+        query = """
+        SELECT * FROM budget WHERE budget_id = %s;
+        """ % id
+        return query
+    
+    deleted_row = check_deleted()
+
+    @query_delete_with_arg(id)
+    def deleteBudget():
+        query = """
+        DELETE FROM budget WHERE budget_id = %s;
+        """
+        return query
+    deleteBudget()
+    
+    return jsonify(deleted_row)
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
