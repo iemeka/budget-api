@@ -1,5 +1,5 @@
 import psycopg2
-from dbconfig import config
+from config import config
 import functools
 
 
