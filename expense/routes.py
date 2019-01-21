@@ -75,7 +75,7 @@ def expense_routes(app):
     @app.route('/expense/<expense_id>', methods=['DELETE'])
     def delete_expense(expense_id):
 
-        @get_deleted_expense
+        @get_updated_and_deleted_expense
         def deleted_expense_query():
             query = """
             SELECT * FROM expenses WHERE expense_id = %s
@@ -92,5 +92,33 @@ def expense_routes(app):
             return query
         delete()
         return jsonify(deleted_row)
+
+    # update budget
+    @app.route('/expense/<expense_id>', methods=['PUT'])
+    def update_expense(expense_id):
+        title = request.json['expense_title']
+        cost = request.json['expense_cost']
+
+        @update_expense_decorator
+        def update_expense_query():
+            query = """
+            UPDATE expenses SET expense_title = '%s',
+            expense_cost = %s
+            WHERE expense_id = %s
+            """ % (title,cost,expense_id)
+            return query
+        update_expense_query()
+
+        @get_updated_and_deleted_expense
+        def up_to_date_expense_query():
+            query = """
+            SELECT * FROM expenses WHERE expense_id = %s
+            """ % expense_id
+            return query
+
+        return jsonify(up_to_date_expense_query())
+        
+              
+
 
 #select bud.budget_title, sum(exp.expense_cost) from budget as bud inner join expenses as exp on bud.budget_id = exp.budget_id group by bud.budget_title order by sum(exp.expense_cost);

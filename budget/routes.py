@@ -89,6 +89,22 @@ def budget_routes(app):
         deleteBudget()
         return jsonify(deleted_row)
 
+    # get all budget and total cost
+    @app.route('/budgets/costs', methods=['GET'])
+    def get_budget_cost():
+
+        @get_budget_cost_query_decorator
+        def get_budget_cost_query():
+            query = """
+            SELECT bud.budget_title, sum(exp.expense_cost) 
+            FROM budget AS bud INNER JOIN expenses AS exp 
+            ON bud.budget_id = exp.budget_id 
+            GROUP BY bud.budget_title 
+            ORDER BY sum(exp.expense_cost);
+            """
+            return query
+
+        return jsonify(get_budget_cost_query())
 
 
 

@@ -194,7 +194,7 @@ def all_expenses_in_a_budget(title):
 
 
 #get deleted expenses from database
-def get_deleted_expense(query):
+def get_updated_and_deleted_expense(query):
     @functools.wraps(query)
     def connect_run_close():
         conn = None
@@ -222,3 +222,55 @@ def get_deleted_expense(query):
         return budget_dict
     return connect_run_close
 
+# update expense
+def update_expense_decorator(query):
+    @functools.wraps(query)
+    def connect_run_close():
+        conn = None
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute(query())
+            conn.commit()
+            print "%s.. \n%s" % (cur.query, cur.statusmessage)
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print error
+        finally:
+            if conn is not None:
+                conn.close()
+        return 'Database connection ended.'
+    return connect_run_close
+
+
+    #----------------------------------------
+
+# get budget and cost
+def get_budget_cost_query_decorator(query):
+    @functools.wraps(query)
+    def connect_run_close():
+        conn = None
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute(query())
+
+            results = cur.fetchall()
+            budget_list = []
+            for rows in results:
+                budget_dict={}
+                budget_dict["budget_title"]= rows[0]
+                budget_dict["budget_cost"] = rows[1]
+                budget_list.append(budget_dict)
+            print "%s.. \n%s" % (cur.query, cur.statusmessage)
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print error
+        finally:
+            if conn is not None:
+                conn.close()
+                print('Database connection ended.')
+        return budget_list
+    return connect_run_close
