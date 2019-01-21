@@ -7,19 +7,38 @@ def budget_routes(app):
     def add_budget():
         title = request.json['budget_title']
 
-        @insert_budget_query(title)
-        def add_budget_to_db():
-            query = "INSERT INTO budget (budget_title) VALUES(%s) RETURNING budget_id"
+        @collecting_titles
+        def get_all_titles():
+            query = """
+            SELECT budget_title FROM budget;
+            """
             return query
-        get_Id = add_budget_to_db()
+        all_titles = get_all_titles()
 
-        def serialize(title,budget_id):
-            return jsonify({
-                'title':title,
-                'budget_id':budget_id
-            })
+         #check if title exists
+        response = None
+        if title in all_titles:
+            failure ={"response":{
+                "status":"error",
+                "data":"null",
+                "message":"title name, '%s' already exists" % title
+            }}
+            response = jsonify(failure)
+        else:
+            @insert_budget_query(title)
+            def add_budget_to_db():
+                query = "INSERT INTO budget (budget_title) VALUES(%s) RETURNING budget_id"
+                return query
 
-        return serialize(title, get_Id)
+            get_Id = add_budget_to_db()
+            def success():
+                result ={"response":{
+                    'title':title,
+                    'budget_id':get_Id
+                }}
+                return result
+            response = jsonify(success())
+        return response
 
     #get all budgets
     @app.route('/budget', methods=['GET'])

@@ -10,45 +10,63 @@ def expense_routes(app):
         exp_title = request.json['exp_title']
         exp_cost = request.json['exp_cost']
 
-        #insert expense to db
-        @insert_expense_query
-        def add_expenses_to_db():
-            query = """INSERT INTO expenses(budget_id,expense_title,expense_cost) 
-            VALUES(%s,'%s',%s) RETURNING expense_id;""" % (budget_id,exp_title, exp_cost)
-            return query
-        add_expenses_to_db()
-
-        @get_budget_title_or_expense_id
-        def get_title():
+        @collecting_titles
+        def get_all_titles():
             query = """
-            SELECT budget_title FROM budget 
-            WHERE budget_id = %s
-            """ % budget_id
+            SELECT expense_title FROM expenses;
+            """
             return query
+        all_titles = get_all_titles()
+
+        response = None
+        if exp_title in all_titles:
+            failure ={"response":{
+                "status":"error",
+                "data":"null",
+                "message":"title name, '%s' already exists" % exp_title
+            }}
+            response = jsonify(failure)
+        else:
+            #insert expense to db
+            @insert_expense_query
+            def add_expenses_to_db():
+                query = """INSERT INTO expenses(budget_id,expense_title,expense_cost) 
+                VALUES(%s,'%s',%s) RETURNING expense_id;""" % (budget_id,exp_title, exp_cost)
+                return query
+            add_expenses_to_db()
+
+            @get_budget_title_or_expense_id
+            def get_title():
+                query = """
+                SELECT budget_title FROM budget 
+                WHERE budget_id = %s
+                """ % budget_id
+                return query
             
-        @get_budget_title_or_expense_id
-        def get_id():
-            #since max expense_id is the newest of expenses with same budget_id
-            query = """
-            SELECT max(expense_id) FROM expenses 
-            WHERE budget_id = %s
-            """ % budget_id
-            return query
+            @get_budget_title_or_expense_id
+            def get_id():
+                #since max expense_id is the newest of expenses with same budget_id
+                query = """
+                SELECT max(expense_id) FROM expenses 
+                WHERE budget_id = %s
+                """ % budget_id
+                return query
 
-        expense_id = get_id()
-        budget_title = get_title()
+            expense_id = get_id()
+            budget_title = get_title()
 
-        def serialize(budget_id,exp_title, exp_cost,expense_id):
-            return jsonify({
-                budget_title:{
-                    'expense_id':expense_id,
-                    'expense_title':exp_title,
-                    'expense_cost':exp_cost,
-                    'budget_id':budget_id
-
+            def success():
+                result = {
+                    budget_title:{
+                        'expense_id':expense_id,
+                        'expense_title':exp_title,
+                        'expense_cost':exp_cost,
+                        'budget_id':budget_id
+                    }
                 }
-            })
-        return serialize(budget_id,exp_title, exp_cost,expense_id)
+                return result
+            response = jsonify(success())
+        return response
 
     #get all expenses in a budget 
     @app.route('/expenses/<budget_id>', methods=['GET'])
