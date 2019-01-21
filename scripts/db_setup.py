@@ -31,19 +31,21 @@ def create_tables(query):
 @create_tables
 def create_tables():
     query = ["""
-        CREATE TABLE budget(
-            budget_id SERIAL PRIMARY KEY NOT NULL,
+            CREATE TABLE budget(
+            budget_id SERIAL PRIMARY KEY,
             budget_title VARCHAR(100) NOT NULL
-        )
+            )
     ""","""
-        CREATE TABLE expenses(
-            budget_id INTEGER PRIMARY KEY,
+            CREATE TABLE expenses(
+            budget_id INTEGER REFERENCES budget
+            ON UPDATE CASCADE
+            ON DELETE CASCADE
+            NOT NULL,
             expense_title VARCHAR(200) NOT NULL,
-            expense_cost INTEGER NOT NULL,
-            FOREIGN KEY (budget_id)
-            REFERENCES budget (budget_id)
-        )
-    """]
+            expense_cost INTEGER NOT NULL
+            expense_id SERIAL PRIMARY KEY,
+            )
+            """]
     return query
 
 

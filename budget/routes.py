@@ -87,7 +87,6 @@ def budget_routes(app):
             """
             return query
         deleteBudget()
-        
         return jsonify(deleted_row)
 
 
