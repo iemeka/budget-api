@@ -263,6 +263,7 @@ def get_budget_cost_query_decorator(query):
                 budget_dict={}
                 budget_dict["budget_title"]= rows[0]
                 budget_dict["budget_cost"] = rows[1]
+                budget_dict["budget_id"] = rows[2]
                 budget_list.append(budget_dict)
             print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()

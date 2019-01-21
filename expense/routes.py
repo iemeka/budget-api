@@ -5,7 +5,7 @@ def expense_routes(app):
 
 
     # add expenses
-    @app.route('/expense/<budget_id>', methods=['POST'])
+    @app.route('/expenses/<budget_id>', methods=['POST'])
     def add_expenses(budget_id):
         exp_title = request.json['exp_title']
         exp_cost = request.json['exp_cost']
@@ -72,7 +72,7 @@ def expense_routes(app):
 
     
     # delete expense
-    @app.route('/expense/<expense_id>', methods=['DELETE'])
+    @app.route('/expenses/<expense_id>', methods=['DELETE'])
     def delete_expense(expense_id):
 
         @get_updated_and_deleted_expense
@@ -94,7 +94,7 @@ def expense_routes(app):
         return jsonify(deleted_row)
 
     # update budget
-    @app.route('/expense/<expense_id>', methods=['PUT'])
+    @app.route('/expenses/<expense_id>', methods=['PUT'])
     def update_expense(expense_id):
         title = request.json['expense_title']
         cost = request.json['expense_cost']
@@ -118,7 +118,3 @@ def expense_routes(app):
 
         return jsonify(up_to_date_expense_query())
         
-              
-
-
-#select bud.budget_title, sum(exp.expense_cost) from budget as bud inner join expenses as exp on bud.budget_id = exp.budget_id group by bud.budget_title order by sum(exp.expense_cost);
