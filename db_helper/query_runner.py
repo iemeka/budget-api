@@ -294,7 +294,7 @@ def get_budget_cost_query_decorator(query):
                 outer_dict = {rows[0]:inner_dict}
                 budget_list.append(outer_dict)
 
-            overall_dict = {"data":budget_list}
+            overall_dict = {"data":budget_list,"error":None}
             print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
