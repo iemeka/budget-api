@@ -10,45 +10,62 @@ def expense_routes(app):
         exp_title = request.json['exp_title']
         exp_cost = request.json['exp_cost']
 
-        #insert expense to db
-        @insert_expense_query
-        def add_expenses_to_db():
-            query = """INSERT INTO expenses(budget_id,expense_title,expense_cost) 
-            VALUES(%s,'%s',%s) RETURNING expense_id;""" % (budget_id,exp_title, exp_cost)
-            return query
-        add_expenses_to_db()
-
-        @get_budget_title_or_expense_id
-        def get_title():
+        @collecting_titles
+        def get_all_titles():
             query = """
-            SELECT budget_title FROM budget 
-            WHERE budget_id = %s
+            SELECT expense_title FROM expenses WHERE budget_id = %s
             """ % budget_id
             return query
-            
-        @get_budget_title_or_expense_id
-        def get_id():
-            #since max expense_id is the newest of expenses with same budget_id
-            query = """
-            SELECT max(expense_id) FROM expenses 
-            WHERE budget_id = %s
-            """ % budget_id
-            return query
+        all_titles = get_all_titles()
 
-        expense_id = get_id()
-        budget_title = get_title()
+        response = None
+        if exp_title in all_titles:
+            failure ={"data":None,
+                "error":"title name, '%s' already exists" % exp_title
+            }
+            response = jsonify(failure)
+        else:
+            #insert expense to db
+            @insert_expense_query
+            def add_expenses_to_db():
+                query = """INSERT INTO expenses(budget_id,expense_title,expense_cost) 
+                VALUES(%s,'%s',%s) RETURNING expense_id;""" % (budget_id,exp_title, exp_cost)
+                return query
+            add_expenses_to_db()
 
-        def serialize(budget_id,exp_title, exp_cost,expense_id):
-            return jsonify({
-                budget_title:{
-                    'expense_id':expense_id,
-                    'expense_title':exp_title,
-                    'expense_cost':exp_cost,
-                    'budget_id':budget_id
+            @get_budget_title_or_expense_id
+            def get_title():
+                query = """
+                SELECT budget_title FROM budget 
+                WHERE budget_id = %s
+                """ % budget_id
+                return query
+            budget_title = get_title()
 
+            @get_budget_title_or_expense_id
+            def get_id():
+                #since max expense_id is the newest of expenses with same budget_id
+                query = """
+                SELECT max(expense_id) FROM expenses 
+                WHERE budget_id = %s
+                """ % budget_id
+                return query
+            expense_id = get_id()
+           
+            def success():
+                result = {
+                    "data":{
+                        'budget_title':get_title(),
+                        'expense_id':expense_id,
+                        'expense_title':exp_title,
+                        'expense_cost':exp_cost,
+                        'budget_id':budget_id
+                    },
+                    "error":None
                 }
-            })
-        return serialize(budget_id,exp_title, exp_cost,expense_id)
+                return result
+            response = jsonify(success())
+        return response
 
     #get all expenses in a budget 
     @app.route('/expenses/<budget_id>', methods=['GET'])
@@ -93,28 +110,43 @@ def expense_routes(app):
         delete()
         return jsonify(deleted_row)
 
-    # update budget
-    @app.route('/expenses/<expense_id>', methods=['PUT'])
-    def update_expense(expense_id):
+    # update expenses
+    @app.route('/expenses/<budget_id>/<expense_id>', methods=['PUT'])
+    def update_expense(budget_id,expense_id):
         title = request.json['expense_title']
         cost = request.json['expense_cost']
 
-        @update_expense_decorator
-        def update_expense_query():
+        @collecting_titles
+        def get_all_titles():
             query = """
-            UPDATE expenses SET expense_title = '%s',
-            expense_cost = %s
-            WHERE expense_id = %s
-            """ % (title,cost,expense_id)
+            SELECT expense_title FROM expenses WHERE budget_id = %s
+            """ % budget_id
             return query
-        update_expense_query()
+        all_titles = get_all_titles()
 
-        @get_updated_and_deleted_expense
-        def up_to_date_expense_query():
-            query = """
-            SELECT * FROM expenses WHERE expense_id = %s
-            """ % expense_id
-            return query
+        response = None
+        if title in all_titles:
+            failure ={"data":None,
+                "error":"title name, '%s' already exists" % title
+            }
+            response = jsonify(failure)
+        else:
+            @update_expense_decorator
+            def update_expense_query():
+                query = """
+                UPDATE expenses SET expense_title = '%s',
+                expense_cost = %s
+                WHERE expense_id = %s
+                """ % (title,cost,expense_id)
+                return query
+            update_expense_query()
 
-        return jsonify(up_to_date_expense_query())
+            @get_updated_and_deleted_expense
+            def up_to_date_expense_query():
+                query = """
+                SELECT * FROM expenses WHERE expense_id = %s
+                """ % expense_id
+                return query
+            response = jsonify(up_to_date_expense_query())
+        return response
         
