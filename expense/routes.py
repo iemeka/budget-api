@@ -13,18 +13,16 @@ def expense_routes(app):
         @collecting_titles
         def get_all_titles():
             query = """
-            SELECT expense_title FROM expenses;
-            """
+            SELECT expense_title FROM expenses WHERE budget_id = %s
+            """ % budget_id
             return query
         all_titles = get_all_titles()
 
         response = None
         if exp_title in all_titles:
-            failure ={"response":{
-                "status":"error",
-                "data":"null",
-                "message":"title name, '%s' already exists" % exp_title
-            }}
+            failure ={"data":"null",
+                "error":"title name, '%s' already exists" % exp_title
+            }
             response = jsonify(failure)
         else:
             #insert expense to db
@@ -42,7 +40,8 @@ def expense_routes(app):
                 WHERE budget_id = %s
                 """ % budget_id
                 return query
-            
+            budget_title = get_title()
+
             @get_budget_title_or_expense_id
             def get_id():
                 #since max expense_id is the newest of expenses with same budget_id
@@ -51,18 +50,18 @@ def expense_routes(app):
                 WHERE budget_id = %s
                 """ % budget_id
                 return query
-
             expense_id = get_id()
-            budget_title = get_title()
-
+           
             def success():
                 result = {
-                    budget_title:{
+                    "data":{
+                        'budget_title':get_title(),
                         'expense_id':expense_id,
                         'expense_title':exp_title,
                         'expense_cost':exp_cost,
                         'budget_id':budget_id
-                    }
+                    },
+                    "error":"null"
                 }
                 return result
             response = jsonify(success())
@@ -111,28 +110,43 @@ def expense_routes(app):
         delete()
         return jsonify(deleted_row)
 
-    # update budget
-    @app.route('/expenses/<expense_id>', methods=['PUT'])
-    def update_expense(expense_id):
+    # update expenses
+    @app.route('/expenses/<budget_id>/<expense_id>', methods=['PUT'])
+    def update_expense(budget_id,expense_id):
         title = request.json['expense_title']
         cost = request.json['expense_cost']
 
-        @update_expense_decorator
-        def update_expense_query():
+        @collecting_titles
+        def get_all_titles():
             query = """
-            UPDATE expenses SET expense_title = '%s',
-            expense_cost = %s
-            WHERE expense_id = %s
-            """ % (title,cost,expense_id)
+            SELECT expense_title FROM expenses WHERE budget_id = %s
+            """ % budget_id
             return query
-        update_expense_query()
+        all_titles = get_all_titles()
 
-        @get_updated_and_deleted_expense
-        def up_to_date_expense_query():
-            query = """
-            SELECT * FROM expenses WHERE expense_id = %s
-            """ % expense_id
-            return query
+        response = None
+        if title in all_titles:
+            failure ={"data":"null",
+                "error":"title name, '%s' already exists" % title
+            }
+            response = jsonify(failure)
+        else:
+            @update_expense_decorator
+            def update_expense_query():
+                query = """
+                UPDATE expenses SET expense_title = '%s',
+                expense_cost = %s
+                WHERE expense_id = %s
+                """ % (title,cost,expense_id)
+                return query
+            update_expense_query()
 
-        return jsonify(up_to_date_expense_query())
+            @get_updated_and_deleted_expense
+            def up_to_date_expense_query():
+                query = """
+                SELECT * FROM expenses WHERE expense_id = %s
+                """ % expense_id
+                return query
+            response = jsonify(up_to_date_expense_query())
+        return response
         

@@ -48,7 +48,35 @@ def query_data_without_arg(query):
                 db["budget_id"]= rows[0]
                 db["budget_title"] = rows[1]
                 budget_list.append(db)        
-            budget_dict={"all budgets":budget_list}
+            budget_dict={"data":budget_list,"error":"null"}
+           
+            print "%s.. \n%s" % (cur.query, cur.statusmessage)
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print error
+        finally:
+            if conn is not None:
+                conn.close()
+                print('Database connection ended.')
+        return budget_dict
+    return connect_run_close
+
+#get single
+def query_single_data_without_arg(query):
+    @functools.wraps(query)
+    def connect_run_close():
+        conn = None
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute(query())
+            
+            results = cur.fetchone()
+            db={}
+            db["budget_id"]= results[0]
+            db["budget_title"] = results[1]
+            budget_dict={"data":db,"error":"null"}
            
             print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
@@ -178,6 +206,7 @@ def all_expenses_in_a_budget(title):
                     db["expense_id"]= rows[3]
                     budget_list.append(db)  
                 budget_dict={title:budget_list}
+                outer_budget_dict = {"data":budget_dict,"error":"null"}
                 print "%s.. \n%s" % (cur.query, cur.statusmessage)
                 conn.commit()
                 cur.close()
@@ -187,7 +216,7 @@ def all_expenses_in_a_budget(title):
                 if conn is not None:
                     conn.close()
                     print('Database connection ended.')
-            return budget_dict
+            return outer_budget_dict
         return connect_run_close
     return all_expenses_in_a_budget
 
@@ -265,7 +294,7 @@ def get_budget_cost_query_decorator(query):
                 outer_dict = {rows[0]:inner_dict}
                 budget_list.append(outer_dict)
 
-            overall_dict = {"budget and cost":budget_list}
+            overall_dict = {"data":budget_list}
             print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
