@@ -19,7 +19,7 @@ def budget_routes(app):
         response = None
         if title in all_titles:
             failure ={
-                "data": "null",
+                "data": None,
                 "error":"title name, '%s' already exists" % title
             }
             response = jsonify(failure)
@@ -36,7 +36,7 @@ def budget_routes(app):
                     "title":title,
                     "budget_id":get_Id
                     },
-                    "error":"null"
+                    "error":None
                 }
                 return result
             response = jsonify(success())
@@ -83,7 +83,7 @@ def budget_routes(app):
         response = None
         if title in all_titles:
             failure ={
-                "data": "null",
+                "data": None,
                 "error":"title name, '%s' already exists" % title
             }
             response = jsonify(failure)

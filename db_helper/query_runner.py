@@ -48,7 +48,7 @@ def query_data_without_arg(query):
                 db["budget_id"]= rows[0]
                 db["budget_title"] = rows[1]
                 budget_list.append(db)        
-            budget_dict={"data":budget_list,"error":"null"}
+            budget_dict={"data":budget_list,"error":None}
            
             print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
@@ -76,7 +76,7 @@ def query_single_data_without_arg(query):
             db={}
             db["budget_id"]= results[0]
             db["budget_title"] = results[1]
-            budget_dict={"data":db,"error":"null"}
+            budget_dict={"data":db,"error":None}
            
             print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
@@ -206,7 +206,7 @@ def all_expenses_in_a_budget(title):
                     db["expense_id"]= rows[3]
                     budget_list.append(db)  
                 budget_dict={title:budget_list}
-                outer_budget_dict = {"data":budget_dict,"error":"null"}
+                outer_budget_dict = {"data":budget_dict,"error":None}
                 print "%s.. \n%s" % (cur.query, cur.statusmessage)
                 conn.commit()
                 cur.close()
