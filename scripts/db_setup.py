@@ -42,8 +42,8 @@ def create_tables():
             ON DELETE CASCADE
             NOT NULL,
             expense_title VARCHAR(200) NOT NULL,
-            expense_cost INTEGER NOT NULL
-            expense_id SERIAL PRIMARY KEY,
+            expense_cost INTEGER NOT NULL,
+            expense_id SERIAL PRIMARY KEY
             )
             """]
     return query
