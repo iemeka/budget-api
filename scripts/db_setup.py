@@ -16,14 +16,14 @@ def create_tables(query):
                 cur.execute(sql)
             conn.commit()
             msg = cur.statusmessage
-            print msg
+            #print msg
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print error
         finally:
             if conn is not None:
                 conn.close()
-                print('Database connection ended.')
+                #print('Database connection ended.')
     return connect_run_close
 
 
@@ -63,14 +63,14 @@ def create_test_tables(query):
                 cur.execute(sql)
             conn.commit()
             msg = cur.statusmessage
-            print msg
+            #print msg
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print error
         finally:
             if conn is not None:
                 conn.close()
-                print('Database connection ended.')
+                #print('Database connection ended.')
     return connect_run_close
 
 #drop table
