@@ -17,14 +17,12 @@ def insert_budget_query(title):
                 cur.execute(query(), [title])
                 budget_id = cur.fetchone()[0]
                 conn.commit()
-                print "%s.. \n%s" % (cur.query, cur.statusmessage)
                 cur.close()
             except (Exception, psycopg2.DatabaseError) as error:
                 print error
             finally:
                 if conn is not None:
                     conn.close()
-                    print('Database connection ended.')
             return budget_id
         return connect_run_close
     return insert_query_decorator
@@ -50,14 +48,12 @@ def query_data_without_arg(query):
                 budget_list.append(db)        
             budget_dict={"data":budget_list,"error":None}
            
-            print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print error
         finally:
             if conn is not None:
                 conn.close()
-                print('Database connection ended.')
         return budget_dict
     return connect_run_close
 
@@ -78,14 +74,12 @@ def query_single_data_without_arg(query):
             db["budget_title"] = results[1]
             budget_dict={"data":db,"error":None}
            
-            print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print error
         finally:
             if conn is not None:
                 conn.close()
-                print('Database connection ended.')
         return budget_dict
     return connect_run_close
 
@@ -101,14 +95,13 @@ def update_query(update_with,where_condition):
                 cur = conn.cursor()
                 cur.execute(query(), (update_with,where_condition))
                 conn.commit()
-                print "%s.. \n%s" % (cur.query, cur.statusmessage)
                 cur.close()
             except (Exception, psycopg2.DatabaseError) as error:
                 print error
             finally:
                 if conn is not None:
                     conn.close()
-                    return 'Database connection ended.'
+                    return None
         return connect_run_close
     return update_query_decorator
 
@@ -124,14 +117,12 @@ def query_delete_with_arg(arg):
                 cur = conn.cursor()
                 cur.execute(query(), (arg,))
                 conn.commit()
-                print "%s.. \n%s" % (cur.query, cur.statusmessage)
                 cur.close()
             except (Exception, psycopg2.DatabaseError) as error:
                 print error
             finally:
                 if conn is not None:
                     conn.close()
-                    print('Database connection ended.')
         return connect_run_close
     return delete_query_decorator
 
@@ -149,7 +140,6 @@ def insert_expense_query(query):
             cur = conn.cursor()
             cur.execute(query())
             conn.commit()
-            print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print error
@@ -157,7 +147,7 @@ def insert_expense_query(query):
             if conn is not None:
                 conn.close()
                 
-        return 'Database connection ended.'
+        return None
     return connect_run_close
 
 # get_budget_title_or_expense_id
@@ -171,16 +161,13 @@ def get_budget_title_or_expense_id(query):
             cur = conn.cursor()
             cur.execute(query())
             budget_title = cur.fetchone()[0]
-            print budget_title
             conn.commit()
-            print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print error
         finally:
             if conn is not None:
                 conn.close()
-                print('Database connection ended.')
         return budget_title
     return connect_run_close
     
@@ -207,7 +194,6 @@ def all_expenses_in_a_budget(title):
                     budget_list.append(db)  
                 budget_dict={title:budget_list}
                 outer_budget_dict = {"data":budget_dict,"error":None}
-                print "%s.. \n%s" % (cur.query, cur.statusmessage)
                 conn.commit()
                 cur.close()
             except (Exception, psycopg2.DatabaseError) as error:
@@ -215,7 +201,6 @@ def all_expenses_in_a_budget(title):
             finally:
                 if conn is not None:
                     conn.close()
-                    print('Database connection ended.')
             return outer_budget_dict
         return connect_run_close
     return all_expenses_in_a_budget
@@ -240,14 +225,12 @@ def get_updated_and_deleted_expense(query):
                 budget_dict["expense_cost"] = rows[2]
                 budget_dict["expense_id"]= rows[3]
             budget_dict_outer = {"data":budget_dict}       
-            print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print error
         finally:
             if conn is not None:
                 conn.close()
-                print('Database connection ended.')
         return budget_dict_outer
     return connect_run_close
 
@@ -262,14 +245,13 @@ def update_expense_decorator(query):
             cur = conn.cursor()
             cur.execute(query())
             conn.commit()
-            print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print error
         finally:
             if conn is not None:
                 conn.close()
-        return 'Database connection ended.'
+        return None
     return connect_run_close
 
 
@@ -295,14 +277,12 @@ def get_budget_cost_query_decorator(query):
                 budget_list.append(outer_dict)
 
             overall_dict = {"data":budget_list,"error":None}
-            print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print error
         finally:
             if conn is not None:
                 conn.close()
-                print('Database connection ended.')
         return overall_dict
     return connect_run_close
 
@@ -323,13 +303,11 @@ def collecting_titles(query):
             for rows in results:
                 budget_titles.append(rows[0])
             
-            print "%s.. \n%s" % (cur.query, cur.statusmessage)
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
             print error
         finally:
             if conn is not None:
                 conn.close()
-                print('Database connection ended.')
         return budget_titles
     return connect_run_close
