@@ -33,13 +33,12 @@ def create_tables():
     query = ["""
             CREATE TABLE user_info(
             user_id SERIAL PRIMARY KEY,
-            user_name VARCHAR(100) NOT NULL,
-            email VARCHAR(100) NOT NULL,
-            password_hash VARCHAR(300) NOT NULL
+            name VARCHAR(100) NOT NULL,
+            pw_hash VARCHAR(300) NOT NULL
             )
     """,]
     return query
-    #userid on budget is functionally dependent on userid
+    #userid on budget is functionally dependent on userid in userinfo
 
 if __name__ == '__main__':
     create_tables()
