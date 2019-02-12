@@ -311,3 +311,80 @@ def collecting_titles(query):
                 conn.close()
         return budget_titles
     return connect_run_close
+
+
+
+#-----------------------security-------------------------------
+#add user
+def add_user_query(query):
+    @functools.wraps(query)
+    def connect_run_close():
+        conn = None
+        user_id = None
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute(query())
+            user_id = cur.fetchone()[0]
+            conn.commit()
+            print "%s.. \n%s" % (cur.query, cur.statusmessage)
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print error
+        finally:
+            if conn is not None:
+                conn.close()
+                print('Database connection ended.')
+        return user_id
+    return connect_run_close
+
+
+def check_user_query(query):
+    @functools.wraps(query)
+    def connect_run_close():
+        conn = None
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute(query())
+
+            results = cur.fetchall()
+            
+            print "%s.. \n%s" % (cur.query, cur.statusmessage)
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print error
+        finally:
+            if conn is not None:
+                conn.close()
+                print('Database connection ended.')
+        return results
+    return connect_run_close
+
+
+def get_current_user(query):
+    @functools.wraps(query)
+    def connect_run_close():
+        conn = None
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute(query())
+
+            results = cur.fetchone()
+            
+            print "%s.. \n%s" % (cur.query, cur.statusmessage)
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print error
+        finally:
+            if conn is not None:
+                conn.close()
+                print('Database connection ended.')
+        return results
+    return connect_run_close
+
+
