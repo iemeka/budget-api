@@ -11,23 +11,22 @@ from functools import wraps
 
 def secure_routes(app):
     no_secret = os.environ['concealme']
+    current_token = {}
 
     def token_required(f):
         @wraps(f)
         def decorated(*args, **kwargs):
             token = None
 
-            if 'access-token' in request.headers:
-                token = request.headers['access-token']
+            if current_token['token']:
+                token = current_token['token']
+            else:
+                return "no token found"
 
-            if not token:
-                return jsonify({'data':None,'error':'token not found'})
-            
             try:
                 data = jwt.decode(token, no_secret, algorithms=['HS256'])
-                print data
                 uid = data['user_id']
-
+           
                 @get_current_user
                 def get_user():
                     query = """SELECT * FROM user_info WHERE user_id = %s """ % uid
@@ -77,13 +76,13 @@ def secure_routes(app):
         @check_user_query
         def checkUser():
             query = """
-            SELECT user_name FROM user_info WHERE user_name = '%s';""" % name
+            SELECT name FROM user_info WHERE name = '%s';""" % name
             return query
 
         @add_user_query
         def addUser():
             query = """
-            INSERT INTO user_info (user_name, pw_hash)
+            INSERT INTO user_info (name, pw_hash)
             VALUES('%s','%s') RETURNING user_id;
             """ % (name,pw_hash)
             return query
@@ -93,6 +92,7 @@ def secure_routes(app):
         else: 
             user_id = addUser()
             token = make_token(user_id)
+            current_token['token'] = token
             return jsonify({'data':{'name':name,'id':user_id,'token':token},'error':None})
 
 
@@ -104,13 +104,14 @@ def secure_routes(app):
         @get_current_user
         def get_user():
             query="""
-            SELECT pw_hash, user_id, user_name FROM user_info WHERE user_name = '%s'
+            SELECT pw_hash, user_id, name FROM user_info WHERE name = '%s'
             """ % name
             return query
         got_user = get_user()
 
         if got_user and valid_pw(name, password,got_user[0]):
             token = make_token(got_user[1])
+            current_token['token'] = token
             return jsonify({'data':{'name':got_user[2],'id':got_user[1],'token':token},'error':None})
         
         return jsonify({'data':None,'error':'invalid username or password'})
@@ -119,4 +120,5 @@ def secure_routes(app):
     @app.route('/user')
     @token_required
     def user(current_user):
-        return jsonify({'user_id':current_user[0],'user_name':current_user[1]})
+        return jsonify({'name':current_user[1],'user_id':current_user[0]})
+        
