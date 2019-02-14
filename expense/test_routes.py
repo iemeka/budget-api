@@ -3,7 +3,7 @@ import json
 import unittest
 import unittest.runner
 import itertools
-from scripts.db_setup import make_tables, drop_tables
+from scripts.db_setup import create_tables, drop_tables, add_fixtures
 
 
 #-------------------result manager~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,20 +71,29 @@ class my_expense_routes_test(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         self.app = app.test_client()
-        make_tables()
+        create_tables()
+        self.signup_setup()
+        self.login_setup()
+        add_fixtures()
     
     def tearDown(self):
         drop_tables()
 
+    def signup_setup(self):
+        fixture = ['baba','mama','papa']
+        for item in fixture:
+            cred = {'username':item,'password':item}
+            name = cred["username"]
+            password = cred["password"]
+            route_login = self.app.get('/userobj/%s/%s' % (name,password))
+            data = json.loads(route_login.get_data(as_text=True))
+
+    def login_setup(self):
+        cred = {'username':'baba','password':'baba'}
+        route_login = self.app.post('/login', data=json.dumps(cred), content_type ='application/json')
+        data = json.loads(route_login.get_data(as_text=True))
+
     def test_for_all_expense_in_a_budget(self):
-        # """ get all expenses under budget ( id 1)
-        # make sure that the budget id of each expense has a relationship with
-        # (or is same with) budget id of budget
-
-        # fixture - expenses - of id 1 under
-        #           budget id of one with title january
-        # """
-
         route = self.app.get('/expenses/1')
         data = json.loads(route.get_data(as_text=True))
         self.assertEqual(data['data']['january'][0]['budget_id'], 1)

@@ -3,7 +3,7 @@ import json
 import unittest
 import unittest.runner
 import itertools
-from scripts.db_setup import make_tables, drop_tables
+from scripts.db_setup import create_tables, drop_tables, add_fixtures
 
 
 #-------------------result manager~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,10 +71,28 @@ class my_budget_route_test(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         self.app = app.test_client()
-        make_tables()
+        create_tables()
+        self.signup_setup()
+        self.login_setup()
+        add_fixtures()
+
 
     def tearDown(self):
         drop_tables()
+
+    def signup_setup(self):
+        fixture = ['baba','mama','papa']
+        for item in fixture:
+            cred = {'username':item,'password':item}
+            name = cred["username"]
+            password = cred["password"]
+            route_login = self.app.get('/userobj/%s/%s' % (name,password))
+            data = json.loads(route_login.get_data(as_text=True))
+
+    def login_setup(self):
+        cred = {'username':'baba','password':'baba'}
+        route_login = self.app.post('/login', data=json.dumps(cred), content_type ='application/json')
+        data = json.loads(route_login.get_data(as_text=True))
 
     def test_for_a_singel_budget(self):
         route = self.app.get('/budget/1')
@@ -82,7 +100,8 @@ class my_budget_route_test(unittest.TestCase):
         expected_data = {
             "data": {   
                 "budget_id": 1, 
-                "budget_title": "january"
+                "budget_title": "january",
+                "user_id":1
                 }, 
                 "error": "null"
             }
@@ -106,11 +125,11 @@ class my_budget_route_test(unittest.TestCase):
             self.assertNotEqual(dict.get("budget_id"), 2)
 
     def test_post_to_budget(self):
-        title= {'budget_title':'march'}
+        title= {'budget_title':'april'}
         route = self.app.post('/budget', data=json.dumps(title), content_type ='application/json')
         actual_data = json.loads(route.get_data(as_text=True))
-        failure ={"data": None,"error":"title name, 'march' already exists"}
-        success = {"data":{"title":'march', "budget_id":3},"error":None}
+        failure ={"data": None,"error":"title name, 'april' already exists"}
+        success = {"data":{"title":'april',"user_id":1, "budget_id":4},"error":None}
 
         if actual_data == failure:
             self.assertEqual(actual_data, failure)
@@ -126,7 +145,7 @@ class my_budget_route_test(unittest.TestCase):
         route = self.app.put('/budget/1', data=json.dumps(title), content_type ='application/json')
         actual_data = json.loads(route.get_data(as_text=True))
         failure ={"data": None,"error":"title name, 'new' already exists"}
-        success = {"data":{"budget_title":'new', "budget_id":1},"error":None}
+        success = {"data":{"budget_title":'new',"user_id":1, "budget_id":1},"error":None}
 
         if actual_data == failure:
             self.assertEqual(actual_data, failure)
@@ -138,7 +157,7 @@ class my_budget_route_test(unittest.TestCase):
 
     
 def get_tests():
-    test_funcs = ['test_for_a_singel_budget','test_get_all_budget','test_delete_from_budget', 'test_post_to_budget', 'test_put_to_budget']
+    test_funcs = ['test_for_a_singel_budget','test_get_all_budget','test_delete_from_budget','test_post_to_budget','test_put_to_budget']
     return [my_budget_route_test(func) for func in test_funcs]
 
 
