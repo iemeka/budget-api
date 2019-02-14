@@ -145,19 +145,22 @@ def budget_routes(app):
 
         @get_budget_cost_query_decorator
         def get_budget_cost_query():
-            #budgets and cost relating to a particular user - i have to include user id in the 
-            #selecting budget
+           
             query = """
             SELECT bud.budget_title, sum(exp.expense_cost), bud.budget_id
             FROM budget AS bud INNER JOIN expenses AS exp 
-            ON bud.budget_id = exp.budget_id 
+            ON bud.budget_id = exp.budget_id AND bud.user_id=%s
             GROUP BY bud.budget_title,bud.budget_id 
             ORDER BY sum(exp.expense_cost);
-            """
+            """ % current_user[0]
             return query
+        data = get_budget_cost_query()
+        user_info = {}
+        data['user_info'] = user_info
+        user_info['name'] = current_user[1]
+        user_info['id'] = current_user[0]
+        
 
-        return jsonify(get_budget_cost_query())
+        return jsonify(data)
 
-
-
-
+#usermodified budget/cost route to display budget and expenses specific to a particular user
