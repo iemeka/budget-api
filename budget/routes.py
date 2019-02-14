@@ -9,12 +9,12 @@ def budget_routes(app):
     @token_required
     def add_budget(current_user):
         title = request.json['budget_title']
-
+        cuid = current_user[0]
         @collecting_titles
         def get_all_titles():
             query = """
-            SELECT budget_title FROM budget;
-            """
+            SELECT budget_title FROM budget WHERE user_id = %s;
+            """                                      % cuid
             return query
         all_titles = get_all_titles()
 
@@ -27,9 +27,9 @@ def budget_routes(app):
             }
             response = jsonify(failure)
         else:
-            @insert_budget_query(title)
+            @insert_budget_query(title,cuid)
             def add_budget_to_db():
-                query = "INSERT INTO budget (budget_title) VALUES(%s) RETURNING budget_id"
+                query = "INSERT INTO budget (budget_title,user_id) VALUES(%s,%s) RETURNING budget_id"
                 return query
 
             get_Id = add_budget_to_db()
@@ -38,7 +38,7 @@ def budget_routes(app):
                     "data":{
                     "title":title,
                     "budget_id":get_Id,
-                    "user_id":current_user[0]
+                    "user_id":cuid
                     },
                     "error":None
                 }
@@ -84,12 +84,13 @@ def budget_routes(app):
     @token_required
     def update_budget(current_user,id):
         title = request.json['budget_title']
+        cuid = current_user[0]
 
         @collecting_titles
         def get_all_titles():
             query = """
-            SELECT budget_title FROM budget;
-            """
+            SELECT budget_title FROM budget WHERE user_id = %s;
+            """ % cuid
             return query
         all_titles = get_all_titles()
 
@@ -119,7 +120,7 @@ def budget_routes(app):
                 return query
             data = oneBudget()
             dictt = data['data']
-            dictt['user_id']=current_user[0]
+            dictt['user_id']=cuid
             response = jsonify(data)
         return response
 

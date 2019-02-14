@@ -4,7 +4,7 @@ import functools
 
 
 #insert into budget database decorator functions
-def insert_budget_query(title):
+def insert_budget_query(title,cuid):
     def insert_query_decorator(query):
         @functools.wraps(query)
         def connect_run_close():
@@ -14,7 +14,7 @@ def insert_budget_query(title):
                 params = config()
                 conn = psycopg2.connect(**params)
                 cur = conn.cursor()
-                cur.execute(query(), [title])
+                cur.execute(query(), (title,cuid))
                 budget_id = cur.fetchone()[0]
                 conn.commit()
                 cur.close()
