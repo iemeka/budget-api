@@ -57,11 +57,7 @@ def budget_routes(app):
             SELECT * FROM budget;
             """
             return query
-        data = allBudgets()
-        dictt = data['data']
-        for uid in dictt:
-            uid['user_id']=current_user[0]
-        return jsonify(data)
+        return jsonify(allBudgets())
 
     #get single budget
     @app.route('/budget/<id>', methods=['GET'])
@@ -74,10 +70,7 @@ def budget_routes(app):
             SELECT * FROM budget WHERE budget_id = %s;
             """ % id
             return query
-        data = oneBudget()
-        dictt = data['data']
-        dictt['user_id']=current_user[0]
-        return jsonify(data)
+        return jsonify(oneBudget())
 
     #update a budget
     @app.route('/budget/<id>', methods=['PUT'])
@@ -118,10 +111,7 @@ def budget_routes(app):
                 SELECT * FROM budget WHERE budget_id = %s;
                 """ % id
                 return query
-            data = oneBudget()
-            dictt = data['data']
-            dictt['user_id']=cuid
-            response = jsonify(data)
+            response = jsonify(oneBudget())
         return response
 
     #DELETE single budget
@@ -137,8 +127,7 @@ def budget_routes(app):
             return query
         
         deleted_row = check_deleted()
-        dictt = deleted_row['data']
-        dictt['user_id']=current_user[0]
+    
 
         @query_delete_with_arg(id)
         def deleteBudget():

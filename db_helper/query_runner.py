@@ -45,6 +45,7 @@ def query_data_without_arg(query):
                 db={}
                 db["budget_id"]= rows[0]
                 db["budget_title"] = rows[1]
+                db["user_id"] = rows[2]
                 budget_list.append(db)        
             budget_dict={"data":budget_list,"error":None}
            
@@ -72,6 +73,7 @@ def query_single_data_without_arg(query):
             db={}
             db["budget_id"]= results[0]
             db["budget_title"] = results[1]
+            db["user_id"] = results[2]
             budget_dict={"data":db,"error":None}
            
             cur.close()
