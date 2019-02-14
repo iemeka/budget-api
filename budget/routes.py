@@ -1,17 +1,20 @@
 from flask import Flask, request, jsonify
 from db_helper.query_runner import * 
+from secure.routes import token_required
 
 def budget_routes(app):
+    
     #create a budget
     @app.route('/budget', methods=['POST'])
-    def add_budget():
+    @token_required
+    def add_budget(current_user):
         title = request.json['budget_title']
-
+        cuid = current_user[0]
         @collecting_titles
         def get_all_titles():
             query = """
-            SELECT budget_title FROM budget;
-            """
+            SELECT budget_title FROM budget WHERE user_id = %s;
+            """                                      % cuid
             return query
         all_titles = get_all_titles()
 
@@ -24,9 +27,9 @@ def budget_routes(app):
             }
             response = jsonify(failure)
         else:
-            @insert_budget_query(title)
+            @insert_budget_query(title,cuid)
             def add_budget_to_db():
-                query = "INSERT INTO budget (budget_title) VALUES(%s) RETURNING budget_id"
+                query = "INSERT INTO budget (budget_title,user_id) VALUES(%s,%s) RETURNING budget_id"
                 return query
 
             get_Id = add_budget_to_db()
@@ -34,7 +37,8 @@ def budget_routes(app):
                 result ={
                     "data":{
                     "title":title,
-                    "budget_id":get_Id
+                    "budget_id":get_Id,
+                    "user_id":cuid
                     },
                     "error":None
                 }
@@ -44,7 +48,8 @@ def budget_routes(app):
 
     #get all budgets
     @app.route('/budget', methods=['GET'])
-    def get_budgets():
+    @token_required
+    def get_budgets(current_user):
         
         @query_data_without_arg
         def allBudgets():
@@ -56,7 +61,8 @@ def budget_routes(app):
 
     #get single budget
     @app.route('/budget/<id>', methods=['GET'])
-    def get_budget(id):
+    @token_required
+    def get_budget(current_user,id):
         
         @query_single_data_without_arg
         def oneBudget():
@@ -68,14 +74,16 @@ def budget_routes(app):
 
     #update a budget
     @app.route('/budget/<id>', methods=['PUT'])
-    def update_budget(id):
+    @token_required
+    def update_budget(current_user,id):
         title = request.json['budget_title']
+        cuid = current_user[0]
 
         @collecting_titles
         def get_all_titles():
             query = """
-            SELECT budget_title FROM budget;
-            """
+            SELECT budget_title FROM budget WHERE user_id = %s;
+            """ % cuid
             return query
         all_titles = get_all_titles()
 
@@ -108,7 +116,8 @@ def budget_routes(app):
 
     #DELETE single budget
     @app.route('/budget/<id>', methods=['DELETE'])
-    def delete_budget(id):
+    @token_required
+    def delete_budget(current_user, id):
         
         @query_single_data_without_arg
         def check_deleted():
@@ -118,6 +127,7 @@ def budget_routes(app):
             return query
         
         deleted_row = check_deleted()
+    
 
         @query_delete_with_arg(id)
         def deleteBudget():
@@ -130,21 +140,27 @@ def budget_routes(app):
 
     # get all budget and total cost
     @app.route('/budgets/costs', methods=['GET'])
-    def get_budget_cost():
+    @token_required
+    def get_budget_cost(current_user):
 
         @get_budget_cost_query_decorator
         def get_budget_cost_query():
+           
             query = """
             SELECT bud.budget_title, sum(exp.expense_cost), bud.budget_id
             FROM budget AS bud INNER JOIN expenses AS exp 
-            ON bud.budget_id = exp.budget_id 
+            ON bud.budget_id = exp.budget_id AND bud.user_id=%s
             GROUP BY bud.budget_title,bud.budget_id 
             ORDER BY sum(exp.expense_cost);
-            """
+            """ % current_user[0]
             return query
+        data = get_budget_cost_query()
+        user_info = {}
+        data['user_info'] = user_info
+        user_info['name'] = current_user[1]
+        user_info['id'] = current_user[0]
+        
 
-        return jsonify(get_budget_cost_query())
+        return jsonify(data)
 
-
-
-
+#

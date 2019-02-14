@@ -31,9 +31,19 @@ def create_tables(query):
 @create_tables
 def create_tables():
     query = ["""
+            CREATE TABLE user_info(
+            user_id SERIAL PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            pw_hash VARCHAR(300) NOT NULL
+            )
+    ""","""
             CREATE TABLE budget(
             budget_id SERIAL PRIMARY KEY,
-            budget_title VARCHAR(100) NOT NULL
+            budget_title VARCHAR(100) NOT NULL,
+            user_id INTEGER REFERENCES user_info
+            ON UPDATE CASCADE
+            ON DELETE CASCADE
+            NOT NULL
             )
     ""","""
             CREATE TABLE expenses(
