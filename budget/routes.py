@@ -157,7 +157,7 @@ def budget_routes(app):
         @get_budget_cost_query_decorator
         def get_budget_cost_query():
             #budgets and cost relating to a particular user - i have to include user id in the 
-            #selecting budget.
+            #selecting budget
             query = """
             SELECT bud.budget_title, sum(exp.expense_cost), bud.budget_id
             FROM budget AS bud INNER JOIN expenses AS exp 
