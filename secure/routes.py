@@ -9,11 +9,10 @@ import os
 import datetime
 from functools import wraps
 
-def secure_routes(app):
-    no_secret = os.environ['concealme']
-    current_token = {}
+no_secret = os.environ['concealme']
+current_token = {'token':""}
 
-    def token_required(f):
+def token_required(f):
         @wraps(f)
         def decorated(*args, **kwargs):
             token = None
@@ -21,7 +20,7 @@ def secure_routes(app):
             if current_token['token']:
                 token = current_token['token']
             else:
-                return "no token found"
+                return jsonify({'data':None,'error':"no token found"})
 
             try:
                 data = jwt.decode(token, no_secret, algorithms=['HS256'])
@@ -38,8 +37,12 @@ def secure_routes(app):
             return f(current_user, *args, **kwargs)
         return decorated
 
+
+def secure_routes(app):
+    
+
     def make_token(user_id):
-        return jwt.encode({'user_id':user_id, 'exp':datetime.datetime.utcnow() + datetime.timedelta(seconds=15)}, no_secret, algorithm='HS256').decode('UTF-8')
+        return jwt.encode({'user_id':user_id, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=10)}, no_secret, algorithm='HS256').decode('UTF-8')
 
     def make_salt(length=5):
         return ''.join(random.choice(string.letters) for x in xrange(length)) 

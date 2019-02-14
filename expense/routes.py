@@ -1,12 +1,14 @@
 from flask import Flask, request, jsonify
 from db_helper.query_runner import * 
+from secure.routes import token_required
 
 def expense_routes(app):
 
 
     # add expenses
     @app.route('/expenses/<budget_id>', methods=['POST'])
-    def add_expenses(budget_id):
+    @token_required
+    def add_expenses(current_user,budget_id):
         exp_title = request.json['exp_title']
         exp_cost = request.json['exp_cost']
 
@@ -43,7 +45,8 @@ def expense_routes(app):
             budget_title = get_title()
 
             @get_budget_title_or_expense_id
-            def get_id():
+            @token_required
+            def get_id(current_user):
                 #since max expense_id is the newest of expenses with same budget_id
                 query = """
                 SELECT max(expense_id) FROM expenses 
@@ -69,7 +72,8 @@ def expense_routes(app):
 
     #get all expenses in a budget 
     @app.route('/expenses/<budget_id>', methods=['GET'])
-    def get_expenses(budget_id):
+    @token_required
+    def get_expenses(current_user, budget_id):
         @get_budget_title_or_expense_id
         def get_title():
             query = """
@@ -90,7 +94,8 @@ def expense_routes(app):
     
     # delete expense
     @app.route('/expenses/<expense_id>', methods=['DELETE'])
-    def delete_expense(expense_id):
+    @token_required
+    def delete_expense(current_user,expense_id):
 
         @get_updated_and_deleted_expense
         def deleted_expense_query():
@@ -112,7 +117,8 @@ def expense_routes(app):
 
     # update expenses
     @app.route('/expenses/<budget_id>/<expense_id>', methods=['PUT'])
-    def update_expense(budget_id,expense_id):
+    @token_required
+    def update_expense(current_user,budget_id,expense_id):
         title = request.json['expense_title']
         cost = request.json['expense_cost']
 
