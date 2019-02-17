@@ -1,13 +1,13 @@
 # Budget Planning api 
 Budget Planning API is an itemized summary of expenses to be incurred in a budget.
 
-## Built With :
+### Built With :
 - Frame-work - Flask
 - Database - Postgresql
 - Database API and Postgresql Database Adapter - Psycopg2
-- Json Web Token - PyJWT
+- Json Web Token - pyJWT
 
-## Table Of Content 
+### Table Of Content 
 1. Authentication
 2. Secure-API routes
 4. Budget routes
@@ -129,7 +129,6 @@ Error Response |  `{'data':None,'error':'budget do not exist'}`
 Token validation is done on each route to confirm the user and before the route returns any response.
 
 ## Expense routes
----
 These routes includes routes to create, edit, deletes, veiw (both single and all) expenses contained in a budget.
 
 ### Add Expenses To Budget
@@ -181,8 +180,3 @@ URL Params | `expense_id=[integer]`
 Data Params | `None`
 Success Response |```{```<br/>```data:{```<br/>```'budget_id':[integer],```<br/>```'expense_id':[integer],```<br/>```'expense_title':[string],```<br/>```'expense_cost':[integer]```<br/>```},```<br/>```'error':None```<br/>```}```
 Error Response |  ```{'data':None,'error':'expenses does not exist'}```
-
-
-
-additional info
-authors ---
