@@ -1,4 +1,4 @@
-# Budget Planning api 
+# Budget Planning API 
 Budget Planning API is an itemized summary of expenses to be incurred in a budget.
 
 ### Built With :
