@@ -40,7 +40,6 @@ def token_required(f):
 
 def secure_routes(app):
     
-
     def make_token(user_id):
         return jwt.encode({'user_id':user_id, 'exp':datetime.datetime.utcnow() + datetime.timedelta(minutes=10)}, no_secret, algorithm='HS256').decode('UTF-8')
 
