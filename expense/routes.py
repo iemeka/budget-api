@@ -89,6 +89,9 @@ def expense_routes(app):
             SELECT * FROM expenses WHERE budget_id = %s
             """ % budget_id
             return query
+        data = all_expenses()
+        if not data:
+            return jsonify({'data':None,'error':'no expenses exist against this budget'})
         return jsonify(all_expenses())
 
     
@@ -113,6 +116,8 @@ def expense_routes(app):
             """
             return query
         delete()
+        if not deleted_row:
+            return jsonify({'data':None,'error':'expense does not exist'})
         return jsonify(deleted_row)
 
     # update expenses

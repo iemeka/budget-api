@@ -132,6 +132,58 @@ Error Response |  `{'data':None,'error':'budget do not exist'}`
 Token validation is done on each route to confirm the user and before the route returns any response.
 
 ## Expense routes
+---
+These routes includes routes to create, edit, deletes, veiw (both single and all) expenses contained in a budget.
+
+### Add Expenses To Budget
+
+Headers    | Details 
+------------------- | :-------------
+Title       | Create expenses
+URL         | `/expenses/budget_id`
+Method | POST
+URL Params | `budget_id=[integer]`
+Data Params | `{'exp_title':[string],'exp_cost':[integer]}`
+Success Response | ```{```<br/>```data:{```<br/>```'budget_title':[string]```,<br/>```'budget_id':[integer],```<br/>```'expense_id':[integer],```<br/>```'expense_title':[string],```<br/>```'expense_cost':[integer]```<br/>```},```<br/>```'error':None```<br/>```}```
+Error Response |  ```{'data':None,'error':'title name, "expense_title" already exists'}```
+Notes       | Two or more users can have expenses of same title but a user can't have two  or more expenses of same title
+
+### Update Expenses In A Budget
+
+Headers    | Details 
+------------------- | :-------------
+Title       | Edit expense title
+URL         | `/expenses/budget_id/expense_id`
+Method | PUT
+URL Params | `budget_id=[integer]`<br/> `expense_id=[integer]`
+Data Params | ```{'expense_title':[string],'expense_cost':[integer]}```
+Success Response | ```{```<br/>```data:{```<br/>```'budget_id':[integer],```<br/>```'expense_id':[integer],```<br/>```'expense_title':[string],```<br/>```'expense_cost':[integer]```<br/>```},```<br/>```'error':None```<br/>```}```
+Error Response |  ```{'data':None,'error':'title name, "expense_title" already exists'}```
+
+### Read Expenses In A Budget
+
+Headers    | Details 
+------------------- | :-------------
+Title       | View all expenses in a budget
+URL         | `/expenses/budget_id`
+Method | GET
+URL Params | `budget_id=[integer]`
+Data Params | `None`
+Success Response | ```{```<br/> ```"data": { ```<br/>```"budget_title'": [```<br/>```{```<br/>```'budget_id':[integer],```<br/>```'expense_id':[integer],```<br/>```'expense_title':[string],```<br/>```'expense_cost':[integer]```<br/>```},``` ```{```<br/>```'budget_id':[integer],```<br/>```'expense_id':[integer],```<br/>```'expense_title':[string],```<br/>```'expense_cost':[integer]```<br/>```}, ...```<br/> <br/>```],``` <br/>```"error": null }```
+Error Response |  ```{'data':None,'error':'no expenses exist against this budget'}```
+
+
+### Delete Expense In A Budget
+
+Headers    | Details 
+------------------- | :-------------
+Title       | Delete an expense in a budget
+URL         | `/expenses/expense_id`
+Method | DELETE
+URL Params | `expense_id=[integer]`
+Data Params | `None`
+Success Response |```{```<br/>```data:{```<br/>```'budget_id':[integer],```<br/>```'expense_id':[integer],```<br/>```'expense_title':[string],```<br/>```'expense_cost':[integer]```<br/>```},```<br/>```'error':None```<br/>```}```
+Error Response |  ```{'data':None,'error':'expenses does not exist'}```
 
 
 

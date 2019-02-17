@@ -146,7 +146,7 @@ def budget_routes(app):
             return jsonify({'data':None,'error':'budget do not exist'})
         return jsonify(deleted_row)
 
-    # get all budget and total cost
+    # get all budget and total cost - USER rELATED
     @app.route('/budgets/costs', methods=['GET'])
     @token_required
     def get_budget_cost(current_user):
