@@ -19,7 +19,7 @@ ___
 ___ 
 User authentication is done using Json Web Token. Each route is decorated with a function which checks the validity of the generated token (this happens before any response from the route is returned) then returns the user object (i.e information of the current logged in or signed up user) on successful validation. Hence each route protected with the token takes a first parameter - `current_user`, this is passed to the route on successful token validation.
 Headers    | Details 
-------------------- | :-------------
+------------------- | -------------
 Title | Token authentication
 Decorator | ```@token_required```
 Returned Parameter | ```current_user```
