@@ -57,7 +57,10 @@ def budget_routes(app):
             SELECT * FROM budget;
             """
             return query
-        return jsonify(allBudgets())
+        data = allBudgets()
+        if not data:
+            return jsonify({'data':None,'error':'no budget exist'})
+        return jsonify(data)
 
     #get single budget
     @app.route('/budget/<id>', methods=['GET'])
@@ -70,7 +73,10 @@ def budget_routes(app):
             SELECT * FROM budget WHERE budget_id = %s;
             """ % id
             return query
-        return jsonify(oneBudget())
+        data = oneBudget()
+        if not data:
+            return jsonify({'data':None,'error':'no budget exist'})
+        return jsonify(data)
 
     #update a budget
     @app.route('/budget/<id>', methods=['PUT'])
@@ -136,9 +142,11 @@ def budget_routes(app):
             """
             return query
         deleteBudget()
+        if not deleted_row:
+            return jsonify({'data':None,'error':'budget do not exist'})
         return jsonify(deleted_row)
 
-    # get all budget and total cost
+    # get all budget and total cost - USER rELATED
     @app.route('/budgets/costs', methods=['GET'])
     @token_required
     def get_budget_cost(current_user):
