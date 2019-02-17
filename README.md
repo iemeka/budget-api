@@ -11,8 +11,9 @@ Budget Planning API is an itemized summary of expenses to be incurred in a budge
 ___
 1. Authentication
 2. Secure-API routes
-4. Expenses routes
-5. Budget routes
+4. Budget routes
+5. Expense routes
+
 
 ##  Authentication
 ___ 
@@ -61,34 +62,78 @@ URL         | `/login`
 Method | POST
 URL Params | None
 Data Params | ```old_user:{```<br/>```'username':'old_username'```,<br/>```'password':'password'```<br/>```}```
-Success Response | ```{```<br/>```data:{```<br/>```'username':'user_name'```,<br/>```'user_id':'user_id',```<br/>```'token':token```<br/>```},```<br/>```'error':None```<br/>```}```
+Success Response | ```{```<br/>```data:{```<br/>```'username':'user_name'```,<br/>```'user_id':'user_id',```<br/>```'token':[alphanumeric]```<br/>```},```<br/>```'error':None```<br/>```}```
 Error Response |  ```{'data':None,'error':'invalid username or password'}```
 
 The url to get the details of the current logged in or signed up user - `/user`
 
-##  Expenses Routes
+##  Budget Routes
 ---
+These routes includes routes to create, edit, deletes, veiw (both single and all) budgets.
+### Add New Budget
+
+Headers    | Details 
+------------------- | :-------------
+Title       | Create a new budget
+URL         | `/budget`
+Method | POST
+URL Params | None
+Data Params | ```{'budget_title':[string]}```
+Success Response | ```{```<br/>```data:{```<br/>```'budget_title':[string]```,<br/>```'budget_id':[integer],```<br/>```'user_id':[integer]```<br/>```},```<br/>```'error':None```<br/>```}```
+Error Response |  ```{'data':None,'error':'title name, "budget_title" already exists'}```
+Notes       | Two or more users can have budget of same title but a user can't have two                 or more budget of same title
+
+### Update Budget
+
+Headers    | Details 
+------------------- | :-------------
+Title       | Edit budget title
+URL         | `/budget/budget_id`
+Method | PUT
+URL Params | `budget_id=[integer]`
+Data Params | ```{'budget_title':[string]}```
+Success Response | ```{```<br/>```data:{```<br/>```'budget_title':[string]```,<br/>```'budget_id':[integer],```<br/>```'user_id':[integer]```<br/>```},```<br/>```'error':None```<br/>```}```
+Error Response |  ```{'data':None,'error':'title name, "budget_title" already exists'}```
+
+### Read All Budget
+Headers    | Details 
+------------------- | :-------------
+Title       | View all budget
+URL         | `/budget`
+Method | GET
+URL Params | `None`
+Data Params | `None`
+Success Response | ```{```<br/>```data:[{```<br/>```'budget_title':[string]```,<br/>```'budget_id':[integer],```<br/>```'user_id':[integer]```<br/>```},{```<br/>```'budget_title':[string]```,<br/>```'budget_id':[integer],```<br/>```'user_id':[integer]```<br/>```} ...],```<br/>```'error':None```<br/>```}```
+Error Response |  `{'data':None,'error':'no budget exist'}`
+
+### Read A Single Budget
+Headers    | Details 
+------------------- | :-------------
+Title       | View all budget
+URL         | `/budget/budget_id`
+Method | GET
+URL Params | `budget_id=[integer]`
+Data Params | `None`
+Success Response | ```{```<br/>```data:{```<br/>```'budget_title':[string]```,<br/>```'budget_id':[integer],```<br/>```'user_id':[integer]```<br/>```},```<br/>```'error':None```<br/>```}```
+Error Response |  `{'data':None,'error':'budget do not exist'}`
 
 
-autentication - (probably no tables) just describe how it works when you get authenticated - on login and signup and what happens after geting authenticated, arguement - logged in or signed up user  it takes and what parameter  - user object (current logged in or signed up user) is returns to every route it was decorated with
-decohrator that retruns the ruser object
-login and signup - only route to create a token
-##use table for all routes
-content-title
-routes-title
-routes name
-routes description- listle discripint of routes before table
-table for more analysis
+### Delete A Budget
+Headers    | Details 
+------------------- | :-------------
+Title       | View all budget
+URL         | `/budget/budget_id`
+Method | DELETE
+URL Params | `budget_id=[integer]`
+Data Params | `None`
+Success Response | ```{```<br/>```data:{```<br/>```'budget_title':[string]```,<br/>```'budget_id':[integer],```<br/>```'user_id':[integer]```<br/>```},```<br/>```'error':None```<br/>```}```
+Error Response |  `{'data':None,'error':'budget do not exist'}`
 
-secure routes - signup and login
- - signup
-    -user object
- - login
-- post routes, use tables(pyload ..etc just normal)* 
-- only routes that dont need authentication but where token are created
-- 
-... tables for budget,expenses, secure routes url
-... secure-routes --- tables of all routes
+Token validation is done on each route to confirm the user and before the route returns any response.
+
+## Expense routes
+
+
 
 additional info
 authors ---
