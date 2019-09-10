@@ -207,6 +207,33 @@ def all_expenses_in_a_budget(title):
         return connect_run_close
     return all_expenses_in_a_budget
 
+#get single expense
+def query_single_data_expense(query):
+    @functools.wraps(query)
+    def connect_run_close():
+        conn = None
+        try:
+            params = config()
+            conn = psycopg2.connect(**params)
+            cur = conn.cursor()
+            cur.execute(query())
+            
+            results = cur.fetchone()
+            db={}
+            db["budget_id"]= results[0]
+            db["expense_title"] = results[1]
+            db["expense_cost"] = results[2]
+            db["expense_id"] = results[3]
+            budget_dict={"data":db,"error":None}
+           
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            print error
+        finally:
+            if conn is not None:
+                conn.close()
+        return budget_dict
+    return connect_run_close
 
 #get deleted expenses from database
 def get_updated_and_deleted_expense(query):

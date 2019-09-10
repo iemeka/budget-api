@@ -26,6 +26,12 @@ def budget_routes(app):
                 "error":"title name, '%s' already exists" % title
             }
             response = jsonify(failure)
+        elif title == "":
+            failure ={
+                "data": None,
+                "error":"pls type in a title for this budget"
+            }
+            response = jsonify(failure)
         else:
             @insert_budget_query(title,cuid)
             def add_budget_to_db():
@@ -50,12 +56,12 @@ def budget_routes(app):
     @app.route('/budget', methods=['GET'])
     @token_required
     def get_budgets(current_user):
-        
+        cuid = current_user[0]
         @query_data_without_arg
         def allBudgets():
             query = """
-            SELECT * FROM budget;
-            """
+            SELECT * FROM budget WHERE user_id = %s ORDER BY budget_id ASC;
+            """ % cuid
             return query
         data = allBudgets()
         if not data:
@@ -99,6 +105,12 @@ def budget_routes(app):
             failure ={
                 "data": None,
                 "error":"title name, '%s' already exists" % title
+            }
+            response = jsonify(failure)
+        elif title == "":
+            failure ={
+                "data": None,
+                "error":"pls type in a title for this budget"
             }
             response = jsonify(failure)
         else:
