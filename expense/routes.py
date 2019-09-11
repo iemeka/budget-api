@@ -20,9 +20,25 @@ def expense_routes(app):
         all_titles = get_all_titles()
 
         response = None
+        # python 'or' not functionning accordingly
         if exp_title in all_titles:
             failure ={"data":None,
                 "error":"title name, '%s' already exists" % exp_title
+            }
+            response = jsonify(failure)
+        elif exp_title == "":
+            failure ={"data":None,
+                "error":"pls type in an expense title and expense cost"
+            }
+            response = jsonify(failure)
+        elif exp_cost == "":
+            failure ={"data":None,
+                "error":"pls type in an expense title and expense cost"
+            }
+            response = jsonify(failure)
+        elif exp_cost.isdigit() == False:
+            failure ={"data":None,
+                "error":"invalid value for cost"
             }
             response = jsonify(failure)
         else:
