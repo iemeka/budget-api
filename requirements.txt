@@ -38,7 +38,6 @@ funcsigs==1.0.2
 functools32==3.2.3.post2
 futures==3.2.0
 gunicorn==19.9.0
-gyp==0.1
 html5lib==0.999999999
 idna==2.6
 inflection==0.3.1
