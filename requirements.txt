@@ -27,6 +27,7 @@ decorator==4.3.0
 dnspython==1.15.0
 docopt==0.6.2
 docutils==0.14
+duplicity==0.7.17
 entrypoints==0.2.3
 enum34==1.1.6
 et-xmlfile==1.0.1
