@@ -158,7 +158,7 @@ def budget_routes(app):
             return jsonify({'data':None,'error':'budget do not exist'})
         return jsonify(deleted_row)
 
-    # get all budget and total cost - USER rELATED
+    # get all budget and total cost - USER rELATED  - a single budget
     @app.route('/budgets/costs/<budget_id>', methods=['GET'])
     @token_required
     def get_budget_cost(current_user,budget_id):
@@ -174,6 +174,32 @@ def budget_routes(app):
             GROUP BY bud.budget_title,bud.budget_id 
             ORDER BY sum(exp.expense_cost);
             """ % (current_user[0], budget_id)
+            return query
+        data = get_budget_cost_query()
+        user_info = {}
+        data['user_info'] = user_info
+        user_info['name'] = current_user[1]
+        user_info['id'] = current_user[0]
+        
+
+        return jsonify(data)
+
+
+# all budgets and cost -- all budget
+    @app.route('/budgets/costs', methods=['GET'])
+    @token_required
+    def get_all_budget_cost(current_user):
+
+        @get_budget_cost_query_decorator
+        def get_budget_cost_query():
+           
+            query = """
+            SELECT bud.budget_title, sum(exp.expense_cost), 
+            bud.budget_id FROM budget AS bud INNER JOIN expenses AS exp 
+            ON bud.budget_id = exp.budget_id AND bud.user_id= %s
+            GROUP BY bud.budget_title,bud.budget_id 
+            ORDER BY sum(exp.expense_cost);
+            """ % (current_user[0])
             return query
         data = get_budget_cost_query()
         user_info = {}
