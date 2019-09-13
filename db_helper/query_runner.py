@@ -298,13 +298,16 @@ def get_budget_cost_query_decorator(query):
             cur.execute(query())
             results = cur.fetchall()
             budget_list = []
+            totalCost = 0
             for rows in results:
                 inner_dict = {}
                 inner_dict["budget_id"] = rows[2]
                 inner_dict["budget_cost"] = rows[1]
+                totalCost +=rows[1]
                 outer_dict = {rows[0]:inner_dict}
                 budget_list.append(outer_dict)
-
+            cost = {"total":totalCost}
+            budget_list.append(cost)
             overall_dict = {"data":budget_list,"error":None}
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
@@ -314,6 +317,9 @@ def get_budget_cost_query_decorator(query):
                 conn.close()
         return overall_dict
     return connect_run_close
+
+
+
 
 
 # collecting_titles

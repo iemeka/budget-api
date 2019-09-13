@@ -159,20 +159,21 @@ def budget_routes(app):
         return jsonify(deleted_row)
 
     # get all budget and total cost - USER rELATED
-    @app.route('/budgets/costs', methods=['GET'])
+    @app.route('/budgets/costs/<budget_id>', methods=['GET'])
     @token_required
-    def get_budget_cost(current_user):
+    def get_budget_cost(current_user,budget_id):
 
         @get_budget_cost_query_decorator
         def get_budget_cost_query():
            
             query = """
-            SELECT bud.budget_title, sum(exp.expense_cost), bud.budget_id
-            FROM budget AS bud INNER JOIN expenses AS exp 
-            ON bud.budget_id = exp.budget_id AND bud.user_id=%s
+            SELECT bud.budget_title, sum(exp.expense_cost), 
+            bud.budget_id FROM budget AS bud INNER JOIN expenses AS exp 
+            ON bud.budget_id = exp.budget_id AND bud.user_id= %s
+            WHERE bud.budget_id = %s
             GROUP BY bud.budget_title,bud.budget_id 
             ORDER BY sum(exp.expense_cost);
-            """ % current_user[0]
+            """ % (current_user[0], budget_id)
             return query
         data = get_budget_cost_query()
         user_info = {}
@@ -182,5 +183,11 @@ def budget_routes(app):
         
 
         return jsonify(data)
+
+    @app.route('/emeka')
+    def test_api():
+        return "goodwork"
+
+    
 
 #
