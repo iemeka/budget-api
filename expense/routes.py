@@ -213,9 +213,14 @@ def expense_routes(app):
         all_titles = get_all_titles()
 
         response = None
-        if cost == "" or int(cost) == False:
+        if cost == "" :
             failure ={"data":None,
                 "error":"pls type in the appropriate value"
+            }
+            response = jsonify(failure)
+        elif cost.isdigit() == False:
+            failure ={"data":None,
+                "error":"cost should have a numerical value"
             }
             response = jsonify(failure)
         else:
