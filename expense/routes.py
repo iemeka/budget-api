@@ -220,7 +220,7 @@ def expense_routes(app):
             response = jsonify(failure)
         elif type(cost) != int:
             failure ={"data":None,
-                "error":"pls type a number pleease!"
+                "error":"pls type a number pleease! (a whole number)"
             }
             response = jsonify(failure)
         else:
