@@ -38,7 +38,7 @@ keyrings.alt==3.0
 kiwisolver==1.0.1
 lockfile==0.12.2
 lpthw.web==1.1
-lxml==4.2.1
+lxml==4.6.2
 mailer==0.8.1
 Mako==1.0.7
 MarkupSafe==1.0
