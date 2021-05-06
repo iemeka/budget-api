@@ -18,7 +18,7 @@ enum34==1.1.6
 et-xmlfile==1.0.1
 fasteners==0.12.0
 Flask==1.0.2
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 Flask-Migrate==2.2.1
 Flask-SQLAlchemy==2.3.2
 Flask-Uploads==0.2.1
