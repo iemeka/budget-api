@@ -40,7 +40,7 @@ lockfile==0.12.2
 lpthw.web==1.1
 lxml==4.2.1
 mailer==0.8.1
-Mako==1.0.7
+Mako==1.2.2
 MarkupSafe==1.0
 mistune==0.8.3
 monotonic==1.0
